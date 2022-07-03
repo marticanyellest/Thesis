@@ -21,7 +21,7 @@ on:
 
 permissions:
   contents: read
-
+     
 jobs:
   semgrep:
     permissions:
@@ -29,16 +29,25 @@ jobs:
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     name: Scan
     runs-on: ubuntu-latest
+    container:
+      # A Docker image with Semgrep installed. Don't change this.
+      image: returntocorp/semgrep
+    # Skip any PR created by dependabot to avoid permission issues
+    if: (github.actor != 'dependabot[bot]')
     steps:
       # Checkout project source
       - uses: actions/checkout@v3
-
-      # Scan code using project's configuration on https://semgrep.dev/manage
-      - uses: returntocorp/semgrep-action@fcd5ab7459e8d91cb1777481980d1b18b4fc6735
-        with:
-          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
-          publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
-          generateSarif: "1"
+ 
+ # Run the "semgrep ci" command on the command line of the docker image.
+      - run: semgrep ci
+        env:
+          # Select rules for your scan with one of these two options.
+          # Option 1: Scan with rules set in Semgrep App's rule board
+          # Make a token at semgrep.dev/orgs/-/settings/tokens, and then
+          # save it in your GitHub Secrets.
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+          # Option 2: Set hard-coded rulesets, viewable in logs.
+          # SEMGREP_RULES: p/default # more at semgrep.dev/explore
 
       # Upload SARIF file generated in previous step
       - name: Upload SARIF file
