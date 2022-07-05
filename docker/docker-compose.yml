@@ -17,6 +17,8 @@ services:
       - 3306
     ports:
       - 3306:3306
+    security_opt:
+      - no-new-privileges:true
   demo_webservice:
     build: ./demo_webservice
     image: demo_webservice
@@ -34,5 +36,8 @@ services:
     ports:
       - 5000:5000
     command: ['python', 'main.py']
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
 networks:
   demo_network:
