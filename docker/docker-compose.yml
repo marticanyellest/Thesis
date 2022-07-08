@@ -31,6 +31,10 @@ services:
       - demo_db
     volumes:
       - ../demo_webservice:/code
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: demo
+      MYSQL_DATABASE: demo
     expose:
       - 5000
     ports:

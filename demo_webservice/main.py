@@ -1,10 +1,13 @@
 from MySQLdb import converters, connect, FIELD_TYPE
 from flask import Flask, send_from_directory, jsonify, request
+from flask_wtf.csrf import CSRFProtect
 import wtforms_json
+import os
 wtforms_json.init()
 from wtforms import Form
 from wtforms.fields import TextField
 from wtforms.validators import DataRequired
+
 # DATABASE
 
 class DB:
@@ -19,7 +22,7 @@ class DB:
       return True
     conv[FIELD_TYPE.TINY]= bool_decoder
     DB.connection = connect(host="demo_db",
-      user="root", port=3306, passwd="demo",db="demo", conv=conv)
+      user=os.getenv("MYSQL_USER"), port=3306, passwd=os.getenv("MYSQL_PASSWORD"), db=os.getenv("MYSQL_DATABASE"), conv=conv)
 
   @staticmethod
   def select(query, clazz, as_dict=False):
@@ -53,7 +56,7 @@ class DB:
     DB.connection.commit()    
     return result
 
-# TODO
+# APP
 
 class Todo(object):
   def __init__(self, _id=-1, title=None, description=None, created_at=None, modified_at=None, is_done=False):
@@ -148,6 +151,9 @@ class TodoPut(Form):
 
 # FLASK
 app = Flask(__name__)
+csrf = CSRFProtect()
+csrf.init_app(app) 
+
 @app.route("/")
 def index():
   return send_from_directory("static", "index.html")
