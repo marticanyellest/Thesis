@@ -1,0 +1,9 @@
+version: '3.3'
+services:
+    sonar-scanner-cli:
+        environment:
+            - SONAR_HOST_URL= http://localhost:9000
+            - SONAR_LOGIN= sqp_9995ea7f8a6c2eb0319192d0ed96c7acdd9a88eb
+        volumes:
+            - ../../:/usr/src
+        image: sonarsource/sonar-scanner-cli
